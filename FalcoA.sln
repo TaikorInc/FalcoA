@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FalcoA.Core", "FalcoA.Core\FalcoA.Core.csproj", "{FC19607D-9326-42C5-A951-3EF5AD03AFF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{DB813ACC-BB7A-4FBE-B6F4-73F004DE09C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleCrawlTool", "RuleCrawlTool\RuleCrawlTool.csproj", "{B7653563-2B0E-4909-A731-0B84FA331B58}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FC19607D-9326-42C5-A951-3EF5AD03AFF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC19607D-9326-42C5-A951-3EF5AD03AFF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC19607D-9326-42C5-A951-3EF5AD03AFF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC19607D-9326-42C5-A951-3EF5AD03AFF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7653563-2B0E-4909-A731-0B84FA331B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7653563-2B0E-4909-A731-0B84FA331B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7653563-2B0E-4909-A731-0B84FA331B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7653563-2B0E-4909-A731-0B84FA331B58}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B7653563-2B0E-4909-A731-0B84FA331B58} = {DB813ACC-BB7A-4FBE-B6F4-73F004DE09C6}
+	EndGlobalSection
+EndGlobal

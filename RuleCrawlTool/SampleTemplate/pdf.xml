@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Template UseBrowser="0">
+  <Get>
+    <Url><![CDATA[http://scholar.google.com.hk/scholar?q=machine&btnG=&hl=en&as_sdt=0%2C5]]></Url>
+  </Get>
+  <ParseContent ListID="list">
+    <Regex><![CDATA["(?<pdf>[^"]*\.pdf)"]]></Regex>
+  </ParseContent>
+  <!--
+    ParseFile phase now can parse PDF/WORD/EXCEL files. Name your document type in
+    the Type attribute (PDF/WORD/EXCEL).
+  -->
+  <ParseFile FileTag="pdf" Save="1" ListID="pdfs" ListBinding="list" Type="PDF">
+    <Directory><![CDATA[F:\PDF]]></Directory>
+  </ParseFile>
+</Template>

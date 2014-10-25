@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Template UseBrowser="0">
+  <Get>
+    <Url><![CDATA[http://www.ftcourt.gov.cn/open/commonopendetail.aspx?cls=3&id=699]]></Url>
+  </Get>
+  <ParseContent ListID="list">
+    <Regex><![CDATA[href="(?<url>[^"]+\.xls)"]]></Regex>
+  </ParseContent>
+  <MakeList ListBinding="list" ListID="complete">
+    <Pattern Name="excel"><![CDATA[http://www.ftcourt.gov.cn#(url)]]></Pattern>
+  </MakeList>
+  <!--
+    ParseFile phase now can parse PDF/WORD/EXCEL files. Name your document type in
+    the Type attribute (PDF/WORD/EXCEL).
+  -->
+  <ParseFile FileTag="excel" Save="1" ListID="pdfs" ListBinding="complete" Type="EXCEL">
+    <Directory><![CDATA[F:\PDF]]></Directory>
+  </ParseFile>
+</Template>

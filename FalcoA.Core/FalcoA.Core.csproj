@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FC19607D-9326-42C5-A951-3EF5AD03AFF1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FalcoA.Core</RootNamespace>
+    <AssemblyName>FalcoA.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Geckofx-Core">
+      <HintPath>..\Reference\Geckofx-Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Geckofx-Winforms">
+      <HintPath>..\Reference\Geckofx-Winforms.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\Reference\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>..\Reference\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI">
+      <HintPath>..\Reference\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML">
+      <HintPath>..\Reference\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net">
+      <HintPath>..\Reference\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats">
+      <HintPath>..\Reference\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Context\BasicContext.cs" />
+    <Compile Include="Context\Context.cs" />
+    <Compile Include="Context\GeckoContext.cs" />
+    <Compile Include="Contract\Constant.cs" />
+    <Compile Include="Contract\CorePhasesConstants.cs" />
+    <Compile Include="Contract\IDataProvider.cs" />
+    <Compile Include="Contract\IParameterUpdatable.cs" />
+    <Compile Include="Contract\IPhase.cs" />
+    <Compile Include="Contract\ITemplate.cs" />
+    <Compile Include="Contract\ITemplateFactory.cs" />
+    <Compile Include="Crawl\HttpHelper.cs" />
+    <Compile Include="Factory\GeneralTemplateFactory.cs" />
+    <Compile Include="Helper\DownloadHelper.cs" />
+    <Compile Include="Helper\ExcelParser.cs" />
+    <Compile Include="Helper\ParameterResolver.cs" />
+    <Compile Include="Helper\PdfParser.cs" />
+    <Compile Include="Helper\RegexHelper.cs" />
+    <Compile Include="Helper\RequestHelper.cs" />
+    <Compile Include="Helper\TemplateGenHelper.cs" />
+    <Compile Include="Helper\TreeNode.cs" />
+    <Compile Include="Helper\TreeParser.cs" />
+    <Compile Include="Helper\WordParser.cs" />
+    <Compile Include="ParameterProvider\Account.cs" />
+    <Compile Include="ParameterProvider\BasicDataProvider.cs" />
+    <Compile Include="ParameterProvider\DomElementLocator.cs" />
+    <Compile Include="PhaseResult.cs" />
+    <Compile Include="Phases\PhaseAccount.cs" />
+    <Compile Include="Phases\PhaseAccountGroup.cs" />
+    <Compile Include="Phases\PhaseClick.cs" />
+    <Compile Include="Phases\PhaseClickScan.cs" />
+    <Compile Include="Phases\PhaseDownload.cs" />
+    <Compile Include="Phases\PhaseFocus.cs" />
+    <Compile Include="Phases\PhaseGet.cs" />
+    <Compile Include="Phases\PhaseInput.cs" />
+    <Compile Include="Phases\PhaseLogin.cs" />
+    <Compile Include="Phases\PhaseLogout.cs" />
+    <Compile Include="Phases\PhaseMakeList.cs" />
+    <Compile Include="Phases\PhaseMouseOver.cs" />
+    <Compile Include="Phases\PhaseParseContent.cs" />
+    <Compile Include="Phases\PhaseParseFile.cs" />
+    <Compile Include="Phases\PhaseParseUrl.cs" />
+    <Compile Include="Phases\PhasePlainList.cs" />
+    <Compile Include="Phases\PhasePost.cs" />
+    <Compile Include="Phases\PhaseScan.cs" />
+    <Compile Include="Phases\PhaseSimpleScan.cs" />
+    <Compile Include="Phases\PhaseWaitFor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TemplateCrawlResult.cs" />
+    <Compile Include="Template\GeneralTemplate.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
