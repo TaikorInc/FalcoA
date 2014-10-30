@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Template UseBrowser="0">
+  <Post>
+    <Url><![CDATA[http://irm.cninfo.com.cn/ircs/interaction/topSearchForSzse.do]]></Url>
+    <Data><![CDATA[condition.dateFrom=2014-03-10&condition.dateTo=2014-04-23&condition.provinceCode=&condition.plate=&condition.searchType=content&condition.stocktype=S&condition.keyWord=O2O&condition.status=-1&condition.needAttribute=true&condition.attr_val=&condition.questionAtr=]]></Data>
+  </Post>
+  <ParseContent>
+    <Regex><![CDATA[<a class="blue1" href=.*?>(?<username>.*?)<.*?\r\n[\s\S].*?>(?<shortname>.*?)\((?<code>.*?)\):.*?\r\n[\s\S].*?\r\n[\s\S](?<question>.*?)\r\n[\s\S]*?class="pubInfo">(?<asktime>.*?)</div>(?:\r\n.*?\r\n.*\r\n.*\r\n.*?\r\n.*?<div style=[\s\S]*?<div class="content_Box">[\s\S]*?<a class="cntcolor".*?\r\n(?<answer>.*?)\r\n[\s\S]*?<a class="date">\r\n(?<answertime>.*?)\r\n)?]]></Regex>
+  </ParseContent>
+</Template>

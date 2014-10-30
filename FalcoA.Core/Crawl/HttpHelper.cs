@@ -20,15 +20,15 @@ namespace FalcoA.Core
         /// <param name="url">Url</param>
         /// <param name="postData">Post的信息</param>
         /// <returns></returns>
-        public static string GetHttpContent(string url, string postData = null)
+        public static string GetHttpContent(string url, string postData = null, CookieContainer cookies = null)
         {
             try
             {
                 HttpWebResponse httpRequest = null;
                 if (string.IsNullOrWhiteSpace(postData))
-                    httpRequest = CreatePostHttpResponse(url, postData);
+                    httpRequest = CreatePostHttpResponse(url, postData, cookies: cookies);
                 else
-                    httpRequest = CreateGetHttpResponse(url);
+                    httpRequest = CreateGetHttpResponse(url, cookies: cookies);
 
                 #region 根据Html头判断
                 Encoding Encode = null;
@@ -124,6 +124,9 @@ namespace FalcoA.Core
                 }
                 #endregion 根据Html头判断
 
+                cookies = new CookieContainer();
+                cookies.Add(httpRequest.Cookies);
+
                 return Content;
             }
             catch
@@ -135,7 +138,7 @@ namespace FalcoA.Core
         /// <summary>  
         /// 创建GET方式的HTTP请求  
         /// </summary>  
-        public static HttpWebResponse CreateGetHttpResponse(string url, int timeout = 60000, string userAgent = "", CookieCollection cookies = null)
+        public static HttpWebResponse CreateGetHttpResponse(string url, int timeout = 60000, string userAgent = "", CookieContainer cookies = null)
         {
             HttpWebRequest request = null;
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
@@ -161,17 +164,16 @@ namespace FalcoA.Core
             request.AllowAutoRedirect = true;
 
             if (cookies != null)
-            {
-                request.CookieContainer = new CookieContainer();
-                request.CookieContainer.Add(cookies);
-            }
+                cookies = new CookieContainer();
+            request.CookieContainer = cookies;
+
             return request.GetResponse() as HttpWebResponse;
         }
 
         /// <summary>  
         /// 创建POST方式的HTTP请求  
         /// </summary>  
-        public static HttpWebResponse CreatePostHttpResponse(string url, string postData, int timeout = 60000, string userAgent = "", CookieCollection cookies = null)
+        public static HttpWebResponse CreatePostHttpResponse(string url, string postData, int timeout = 60000, string userAgent = "", CookieContainer cookies = null)
         {
             HttpWebRequest request = null;
             //如果是发送HTTPS请求  
@@ -198,10 +200,9 @@ namespace FalcoA.Core
             request.AllowAutoRedirect = true;
 
             if (cookies != null)
-            {
-                request.CookieContainer = new CookieContainer();
-                request.CookieContainer.Add(cookies);
-            }
+                cookies = new CookieContainer();
+            request.CookieContainer = cookies;
+
             //发送POST数据  
             if (!string.IsNullOrWhiteSpace(postData))
             {
@@ -213,18 +214,6 @@ namespace FalcoA.Core
             }
             string[] values = request.Headers.GetValues("Content-Type");
             return request.GetResponse() as HttpWebResponse;
-        }
-
-        /// <summary>
-        /// 获取请求的数据
-        /// </summary>
-        public static string GetResponseString(HttpWebResponse webresponse)
-        {
-            using (Stream s = webresponse.GetResponseStream())
-            {
-                StreamReader reader = new StreamReader(s, Encoding.UTF8);
-                return reader.ReadToEnd();
-            }
         }
 
         /// <summary>
