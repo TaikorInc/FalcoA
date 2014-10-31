@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -7,6 +8,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace FalcoA.Core
 {
@@ -19,16 +21,20 @@ namespace FalcoA.Core
         /// </summary>
         /// <param name="url">Url</param>
         /// <param name="postData">Post的信息</param>
+        /// <param name="cookies">Cookies</param>
+        /// <param name="userAgent">浏览器标识</param>
+        /// <param name="referer">来源页</param>
+        /// <param name="cookiesDomain">Cookies的Domian参数，配合cookies使用；为空则取url的Host</param>
         /// <returns></returns>
-        public static string GetHttpContent(string url, string postData = null, CookieContainer cookies = null)
+        public static string GetHttpContent(string url, string postData = null, CookieContainer cookies = null, string userAgent = "", string referer = "", string cookiesDomain = "")
         {
             try
             {
-                HttpWebResponse httpRequest = null;
-                if (string.IsNullOrWhiteSpace(postData))
-                    httpRequest = CreatePostHttpResponse(url, postData, cookies: cookies);
+                HttpWebResponse httpResponse = null;
+                if (!string.IsNullOrWhiteSpace(postData))
+                    httpResponse = CreatePostHttpResponse(url, postData, cookies: cookies, userAgent: userAgent, referer: referer);
                 else
-                    httpRequest = CreateGetHttpResponse(url, cookies: cookies);
+                    httpResponse = CreateGetHttpResponse(url, cookies: cookies, userAgent: userAgent, referer: referer);
 
                 #region 根据Html头判断
                 Encoding Encode = null;
@@ -43,19 +49,19 @@ namespace FalcoA.Core
 
                 //创建流对象并解码
                 Stream ResponseStream;
-                switch (httpRequest.ContentEncoding.ToUpperInvariant())
+                switch (httpResponse.ContentEncoding.ToUpperInvariant())
                 {
                     case "GZIP":
                         ResponseStream = new GZipStream(
-                            httpRequest.GetResponseStream(), CompressionMode.Decompress);
+                            httpResponse.GetResponseStream(), CompressionMode.Decompress);
                         break;
                     case "DEFLATE":
                         ResponseStream = new DeflateStream(
-                            httpRequest.GetResponseStream(), CompressionMode.Decompress);
+                            httpResponse.GetResponseStream(), CompressionMode.Decompress);
                         break;
 
                     default:
-                        ResponseStream = httpRequest.GetResponseStream();
+                        ResponseStream = httpResponse.GetResponseStream();
                         break;
                 }
 
@@ -79,7 +85,7 @@ namespace FalcoA.Core
                     try
                     {
 
-                        if (httpRequest.CharacterSet == "ISO-8859-1" || httpRequest.CharacterSet == "zh-cn")
+                        if (httpResponse.CharacterSet == "ISO-8859-1" || httpResponse.CharacterSet == "zh-cn")
                         {
                             Match match = Regex.Match(
                                               cache, CharsetReg,
@@ -103,7 +109,7 @@ namespace FalcoA.Core
                         }
                         else
                         {
-                            Encode = System.Text.Encoding.GetEncoding(httpRequest.CharacterSet);
+                            Encode = System.Text.Encoding.GetEncoding(httpResponse.CharacterSet);
                         }
                     }
                     catch
@@ -120,12 +126,17 @@ namespace FalcoA.Core
                 }
                 finally
                 {
-                    httpRequest.Close();
+                    httpResponse.Close();
                 }
                 #endregion 根据Html头判断
 
+                //获取返回的Cookies，支持httponly
+                if (string.IsNullOrWhiteSpace(cookiesDomain))
+                    cookiesDomain = httpResponse.ResponseUri.Host;
+
                 cookies = new CookieContainer();
-                cookies.Add(httpRequest.Cookies);
+                CookieCollection httpHeaderCookies = SetCookie(httpResponse, cookiesDomain);
+                cookies.Add(httpHeaderCookies ?? httpResponse.Cookies);
 
                 return Content;
             }
@@ -135,10 +146,16 @@ namespace FalcoA.Core
             }
         }
 
-        /// <summary>  
-        /// 创建GET方式的HTTP请求  
-        /// </summary>  
-        public static HttpWebResponse CreateGetHttpResponse(string url, int timeout = 60000, string userAgent = "", CookieContainer cookies = null)
+        /// <summary>
+        /// 创建GET方式的HTTP请求 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="timeout"></param>
+        /// <param name="userAgent"></param>
+        /// <param name="cookies"></param>
+        /// <param name="referer"></param>
+        /// <returns></returns>
+        public static HttpWebResponse CreateGetHttpResponse(string url, int timeout = 60000, string userAgent = "", CookieContainer cookies = null, string referer = "")
         {
             HttpWebRequest request = null;
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
@@ -152,6 +169,8 @@ namespace FalcoA.Core
             {
                 request = WebRequest.Create(url) as HttpWebRequest;
             }
+
+            request.Referer = referer;
             request.Method = "GET";
 
             //设置代理UserAgent和超时
@@ -160,20 +179,27 @@ namespace FalcoA.Core
 
             request.UserAgent = userAgent;
             request.Timeout = timeout;
-            request.KeepAlive = false;
+            request.KeepAlive = true;
             request.AllowAutoRedirect = true;
 
-            if (cookies != null)
+            if (cookies == null)
                 cookies = new CookieContainer();
             request.CookieContainer = cookies;
 
             return request.GetResponse() as HttpWebResponse;
         }
 
-        /// <summary>  
-        /// 创建POST方式的HTTP请求  
-        /// </summary>  
-        public static HttpWebResponse CreatePostHttpResponse(string url, string postData, int timeout = 60000, string userAgent = "", CookieContainer cookies = null)
+        /// <summary>
+        /// 创建POST方式的HTTP请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="postData"></param>
+        /// <param name="timeout"></param>
+        /// <param name="userAgent"></param>
+        /// <param name="cookies"></param>
+        /// <param name="referer"></param>
+        /// <returns></returns>
+        public static HttpWebResponse CreatePostHttpResponse(string url, string postData, int timeout = 60000, string userAgent = "", CookieContainer cookies = null, string referer = "")
         {
             HttpWebRequest request = null;
             //如果是发送HTTPS请求  
@@ -187,6 +213,7 @@ namespace FalcoA.Core
             {
                 request = WebRequest.Create(url) as HttpWebRequest;
             }
+            request.Referer = referer;
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
 
@@ -196,17 +223,18 @@ namespace FalcoA.Core
             else
                 request.UserAgent = userAgent;
             request.Timeout = timeout;
-            request.KeepAlive = false;
+            request.KeepAlive = true;
             request.AllowAutoRedirect = true;
 
-            if (cookies != null)
+            if (cookies == null)
                 cookies = new CookieContainer();
             request.CookieContainer = cookies;
 
             //发送POST数据  
             if (!string.IsNullOrWhiteSpace(postData))
             {
-                byte[] data = Encoding.ASCII.GetBytes(postData);
+                byte[] data = Encoding.UTF8.GetBytes(postData);
+                request.ContentLength = data.Length;
                 using (Stream stream = request.GetRequestStream())
                 {
                     stream.Write(data, 0, data.Length);
@@ -219,11 +247,97 @@ namespace FalcoA.Core
         /// <summary>
         /// 验证证书
         /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="certificate"></param>
+        /// <param name="chain"></param>
+        /// <param name="errors"></param>
+        /// <returns>是否验证通过</returns>
         private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
         {
             if (errors == SslPolicyErrors.None)
                 return true;
             return false;
+        }
+
+        /// <summary>
+        /// 根据response中头部的set-cookie对request中的cookie进行设置
+        /// </summary>
+        /// <param name="setCookie">The set cookie.</param>
+        /// <param name="defaultDomain">The default domain.</param>
+        /// <returns></returns>
+        private static CookieCollection SetCookie(HttpWebResponse response, string defaultDomain)
+        {
+            try
+            {
+                string[] setCookie = response.Headers.GetValues("Set-Cookie");
+
+                // there is bug in it,the datetime in "set-cookie" will be sepreated in two pieces.
+                List<string> a = new List<string>(setCookie);
+                for (int i = setCookie.Length - 1; i > 0; i--)
+                {
+                    if (a[i].Substring(a[i].Length - 3) == "GMT")
+                    {
+                        a[i - 1] = a[i - 1] + ", " + a[i];
+                        a.RemoveAt(i);
+                        i--;
+                    }
+                }
+                setCookie = a.ToArray<string>();
+                CookieCollection cookies = new CookieCollection();
+                foreach (string str in setCookie)
+                {
+                    NameValueCollection hs = new NameValueCollection();
+                    foreach (string i in str.Split(';'))
+                    {
+                        int index = i.IndexOf("=");
+                        if (index > 0)
+                            hs.Add(i.Substring(0, index).Trim(), i.Substring(index + 1).Trim());
+                        else
+                            switch (i)
+                            {
+                                case "HttpOnly":
+                                    hs.Add("HttpOnly", "True");
+                                    break;
+                                case "Secure":
+                                    hs.Add("Secure", "True");
+                                    break;
+                            }
+                    }
+                    Cookie ck = new Cookie();
+                    foreach (string Key in hs.AllKeys)
+                    {
+                        switch (Key.ToLower().Trim())
+                        {
+                            case "path":
+                                ck.Path = hs[Key];
+                                break;
+                            case "expires":
+                                ck.Expires = DateTime.Parse(hs[Key]);
+                                break;
+                            case "domain":
+                                ck.Domain = hs[Key];
+                                break;
+                            case "httpOnly":
+                                ck.HttpOnly = true;
+                                break;
+                            case "secure":
+                                ck.Secure = true;
+                                break;
+                            default:
+                                ck.Name = Key;
+                                ck.Value = hs[Key];
+                                break;
+                        }
+                    }
+                    if (ck.Domain == "") ck.Domain = defaultDomain;
+                    if (ck.Name != "") cookies.Add(ck);
+                }
+                return cookies;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
